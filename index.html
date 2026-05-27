@@ -1,0 +1,732 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <!-- =========================================================
+         ADVANCED JAVASCRIPT TO-DO APPLICATION
+         CRUD + FILTER + LOCAL STORAGE + DARK MODE
+    ========================================================== -->
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Advanced To-Do App</title>
+
+    <style>
+
+        /* =====================================================
+           GOOGLE FONT
+        ====================================================== */
+
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+        /* =====================================================
+           ROOT VARIABLES
+        ====================================================== */
+
+        :root{
+
+            --bg:#f1f5f9;
+            --card:#ffffff;
+            --text:#0f172a;
+            --primary:#2563eb;
+            --danger:#ef4444;
+            --success:#10b981;
+            --shadow:0 10px 30px rgba(0,0,0,0.1);
+
+        }
+
+        body.dark{
+
+            --bg:#0f172a;
+            --card:#1e293b;
+            --text:#f8fafc;
+
+        }
+
+        /* =====================================================
+           GLOBAL RESET
+        ====================================================== */
+
+        *{
+            margin:0;
+            padding:0;
+            box-sizing:border-box;
+        }
+
+        body{
+
+            font-family:'Poppins',sans-serif;
+            background:var(--bg);
+            color:var(--text);
+
+            transition:0.4s;
+
+            min-height:100vh;
+
+            display:flex;
+            justify-content:center;
+            align-items:center;
+
+            padding:2rem;
+
+        }
+
+        /* =====================================================
+           MAIN CONTAINER
+        ====================================================== */
+
+        .container{
+
+            width:100%;
+            max-width:700px;
+
+            background:var(--card);
+
+            border-radius:25px;
+
+            padding:2rem;
+
+            box-shadow:var(--shadow);
+
+        }
+
+        /* =====================================================
+           HEADER
+        ====================================================== */
+
+        .header{
+
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+
+            margin-bottom:2rem;
+
+        }
+
+        .header h1{
+
+            color:var(--primary);
+
+        }
+
+        .theme-btn{
+
+            border:none;
+            padding:10px 18px;
+
+            border-radius:50px;
+
+            background:var(--primary);
+            color:white;
+
+            cursor:pointer;
+            font-weight:bold;
+
+        }
+
+        /* =====================================================
+           INPUT SECTION
+        ====================================================== */
+
+        .input-section{
+
+            display:flex;
+            gap:1rem;
+
+            margin-bottom:2rem;
+
+        }
+
+        .input-section input{
+
+            flex:1;
+
+            padding:1rem;
+
+            border:none;
+
+            border-radius:15px;
+
+            background:#e2e8f0;
+
+            font-size:1rem;
+
+        }
+
+        .input-section button{
+
+            border:none;
+
+            padding:1rem 1.5rem;
+
+            border-radius:15px;
+
+            background:var(--primary);
+            color:white;
+
+            font-weight:bold;
+
+            cursor:pointer;
+
+        }
+
+        /* =====================================================
+           FILTER BUTTONS
+        ====================================================== */
+
+        .filters{
+
+            display:flex;
+            gap:1rem;
+
+            margin-bottom:2rem;
+
+            flex-wrap:wrap;
+
+        }
+
+        .filter-btn{
+
+            border:none;
+
+            padding:10px 20px;
+
+            border-radius:50px;
+
+            cursor:pointer;
+
+            background:#cbd5e1;
+
+            font-weight:600;
+
+        }
+
+        .active-filter{
+
+            background:var(--primary);
+            color:white;
+
+        }
+
+        /* =====================================================
+           TASK LIST
+        ====================================================== */
+
+        .task-list{
+
+            display:flex;
+            flex-direction:column;
+            gap:1rem;
+
+        }
+
+        .task{
+
+            background:#e2e8f0;
+
+            padding:1rem;
+
+            border-radius:15px;
+
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+
+            gap:1rem;
+
+            animation:fadeIn 0.5s ease;
+
+        }
+
+        /* =====================================================
+           COMPLETED TASK
+        ====================================================== */
+
+        .completed{
+
+            text-decoration:line-through;
+            opacity:0.6;
+
+        }
+
+        /* =====================================================
+           TASK BUTTONS
+        ====================================================== */
+
+        .task-buttons{
+
+            display:flex;
+            gap:0.5rem;
+
+        }
+
+        .complete-btn{
+
+            background:var(--success);
+
+        }
+
+        .edit-btn{
+
+            background:#f59e0b;
+
+        }
+
+        .delete-btn{
+
+            background:var(--danger);
+
+        }
+
+        .task-buttons button{
+
+            border:none;
+
+            color:white;
+
+            padding:8px 12px;
+
+            border-radius:10px;
+
+            cursor:pointer;
+
+            font-weight:bold;
+
+        }
+
+        /* =====================================================
+           EMPTY MESSAGE
+        ====================================================== */
+
+        .empty{
+
+            text-align:center;
+            opacity:0.7;
+            margin-top:2rem;
+
+        }
+
+        /* =====================================================
+           ANIMATION
+        ====================================================== */
+
+        @keyframes fadeIn{
+
+            from{
+                opacity:0;
+                transform:translateY(-10px);
+            }
+
+            to{
+                opacity:1;
+                transform:translateY(0);
+            }
+
+        }
+
+        /* =====================================================
+           RESPONSIVE DESIGN
+        ====================================================== */
+
+        @media(max-width:600px){
+
+            .input-section{
+
+                flex-direction:column;
+
+            }
+
+            .task{
+
+                flex-direction:column;
+                align-items:flex-start;
+
+            }
+
+            .task-buttons{
+
+                width:100%;
+                justify-content:flex-end;
+
+            }
+
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+    <!-- =====================================================
+         MAIN CONTAINER
+    ====================================================== -->
+
+    <div class="container">
+
+        <!-- HEADER -->
+
+        <div class="header">
+
+            <h1>Advanced To-Do App</h1>
+
+            <button class="theme-btn" id="themeBtn">
+                Dark Mode
+            </button>
+
+        </div>
+
+        <!-- INPUT SECTION -->
+
+        <div class="input-section">
+
+            <input
+                type="text"
+                id="taskInput"
+                placeholder="Enter a new task..."
+            >
+
+            <button id="addTaskBtn">
+                Add Task
+            </button>
+
+        </div>
+
+        <!-- FILTER BUTTONS -->
+
+        <div class="filters">
+
+            <button class="filter-btn active-filter"
+                    data-filter="all">
+                All
+            </button>
+
+            <button class="filter-btn"
+                    data-filter="active">
+                Active
+            </button>
+
+            <button class="filter-btn"
+                    data-filter="completed">
+                Completed
+            </button>
+
+        </div>
+
+        <!-- TASK LIST -->
+
+        <div class="task-list" id="taskList">
+
+        </div>
+
+        <!-- EMPTY MESSAGE -->
+
+        <p class="empty" id="emptyMessage">
+            No tasks available.
+        </p>
+
+    </div>
+
+    <!-- =====================================================
+         JAVASCRIPT SECTION
+    ====================================================== -->
+
+    <script>
+
+        // =====================================================
+        // DOM ELEMENTS
+        // =====================================================
+
+        const taskInput =
+        document.getElementById("taskInput");
+
+        const addTaskBtn =
+        document.getElementById("addTaskBtn");
+
+        const taskList =
+        document.getElementById("taskList");
+
+        const emptyMessage =
+        document.getElementById("emptyMessage");
+
+        const filterButtons =
+        document.querySelectorAll(".filter-btn");
+
+        const themeBtn =
+        document.getElementById("themeBtn");
+
+        // =====================================================
+        // APPLICATION STATE
+        // =====================================================
+
+        let tasks =
+        JSON.parse(localStorage.getItem("tasks")) || [];
+
+        let currentFilter = "all";
+
+        // =====================================================
+        // SAVE TASKS TO LOCAL STORAGE
+        // =====================================================
+
+        function saveTasks(){
+
+            localStorage.setItem(
+                "tasks",
+                JSON.stringify(tasks)
+            );
+
+        }
+
+        // =====================================================
+        // RENDER TASKS
+        // =====================================================
+
+        function renderTasks(){
+
+            taskList.innerHTML = "";
+
+            let filteredTasks = tasks;
+
+            // FILTERING LOGIC
+
+            if(currentFilter === "active"){
+
+                filteredTasks =
+                tasks.filter(task => !task.completed);
+
+            }
+
+            if(currentFilter === "completed"){
+
+                filteredTasks =
+                tasks.filter(task => task.completed);
+
+            }
+
+            // EMPTY MESSAGE
+
+            if(filteredTasks.length === 0){
+
+                emptyMessage.style.display = "block";
+
+            }
+            else{
+
+                emptyMessage.style.display = "none";
+
+            }
+
+            // CREATE TASK ELEMENTS
+
+            filteredTasks.forEach((task,index)=>{
+
+                const taskDiv =
+                document.createElement("div");
+
+                taskDiv.classList.add("task");
+
+                // COMPLETED STYLE
+
+                if(task.completed){
+
+                    taskDiv.classList.add("completed");
+
+                }
+
+                // TASK CONTENT
+
+                taskDiv.innerHTML = `
+
+                    <span>${task.text}</span>
+
+                    <div class="task-buttons">
+
+                        <button class="complete-btn">
+                            ✓
+                        </button>
+
+                        <button class="edit-btn">
+                            Edit
+                        </button>
+
+                        <button class="delete-btn">
+                            Delete
+                        </button>
+
+                    </div>
+
+                `;
+
+                // COMPLETE TASK
+
+                taskDiv.querySelector(".complete-btn")
+                .addEventListener("click",()=>{
+
+                    task.completed =
+                    !task.completed;
+
+                    saveTasks();
+
+                    renderTasks();
+
+                });
+
+                // EDIT TASK
+
+                taskDiv.querySelector(".edit-btn")
+                .addEventListener("click",()=>{
+
+                    const updatedText =
+                    prompt(
+                        "Edit your task:",
+                        task.text
+                    );
+
+                    if(updatedText){
+
+                        task.text = updatedText;
+
+                        saveTasks();
+
+                        renderTasks();
+
+                    }
+
+                });
+
+                // DELETE TASK
+
+                taskDiv.querySelector(".delete-btn")
+                .addEventListener("click",()=>{
+
+                    tasks.splice(index,1);
+
+                    saveTasks();
+
+                    renderTasks();
+
+                });
+
+                // ADD TASK TO DOM
+
+                taskList.appendChild(taskDiv);
+
+            });
+
+        }
+
+        // =====================================================
+        // ADD NEW TASK
+        // =====================================================
+
+        addTaskBtn.addEventListener("click",()=>{
+
+            const taskText =
+            taskInput.value.trim();
+
+            // VALIDATION
+
+            if(taskText === ""){
+
+                alert("Please enter a task!");
+
+                return;
+
+            }
+
+            // CREATE TASK OBJECT
+
+            const newTask = {
+
+                text:taskText,
+                completed:false
+
+            };
+
+            // PUSH INTO ARRAY
+
+            tasks.push(newTask);
+
+            // SAVE + RENDER
+
+            saveTasks();
+
+            renderTasks();
+
+            // CLEAR INPUT
+
+            taskInput.value = "";
+
+        });
+
+        // =====================================================
+        // FILTER BUTTONS
+        // =====================================================
+
+        filterButtons.forEach(button=>{
+
+            button.addEventListener("click",()=>{
+
+                // REMOVE ACTIVE CLASS
+
+                filterButtons.forEach(btn=>{
+
+                    btn.classList.remove(
+                        "active-filter"
+                    );
+
+                });
+
+                // ADD ACTIVE CLASS
+
+                button.classList.add(
+                    "active-filter"
+                );
+
+                // CHANGE FILTER
+
+                currentFilter =
+                button.dataset.filter;
+
+                renderTasks();
+
+            });
+
+        });
+
+        // =====================================================
+        // DARK MODE TOGGLE
+        // =====================================================
+
+        themeBtn.addEventListener("click",()=>{
+
+            document.body.classList.toggle("dark");
+
+            if(document.body.classList.contains("dark")){
+
+                themeBtn.innerText =
+                "Light Mode";
+
+            }
+            else{
+
+                themeBtn.innerText =
+                "Dark Mode";
+
+            }
+
+        });
+
+        // =====================================================
+        // INITIAL RENDER
+        // =====================================================
+
+        renderTasks();
+
+    </script>
+
+</body>
+</html>
